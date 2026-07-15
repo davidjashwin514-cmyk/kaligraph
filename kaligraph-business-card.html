@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kaligraph Business System | Entrust ID Card Printer Partner, Kerala</title>
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --navy: #0B2545;
+        --navy-deep: #071A33;
+        --teal: #0EA5A0;
+        --teal-dark: #0B8580;
+        --purple: #5B21B6;
+        --gold: #D4AF7F;
+        --bg: #F5F7FA;
+        --bg-soft: rgba(255,255,255,0.78);
+        --card: #FFFFFF;
+        --text: #1F2937;
+        --muted: #66707D;
+        --border: rgba(255,255,255,0.35);
+        --radius: 18px;
+        --shadow: 0 24px 60px rgba(11,37,69,0.14);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+        font-family: 'Inter', Arial, sans-serif;
+        background-image:
+            radial-gradient(circle at top left, rgba(14,165,160,0.18), transparent 28%),
+            radial-gradient(circle at top right, rgba(91,33,182,0.16), transparent 24%),
+            url('bg.png');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        margin: 0;
+        padding: 40px 20px;
+        color: var(--text);
+    }
+
+    #loader {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: var(--navy);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+
+    #loader.hidden {
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    .loader-spinner {
+        width: 70px;
+        height: 70px;
+        border: 6px solid rgba(255,255,255,0.25);
+        border-top-color: var(--teal);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .container {
+        max-width: 760px;
+        margin: 0 auto;
+        background: var(--bg-soft);
+        border-radius: var(--radius);
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,0.35);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(10px);
+    }
+
+    .badge-header {
+        background: linear-gradient(135deg, rgba(11,37,69,0.98) 0%, rgba(91,33,182,0.94) 38%, rgba(14,165,160,0.95) 100%);
+        background-size: 420% 420%;
+        background-repeat: no-repeat;
+        animation: gradientShift 12s ease infinite alternate;
+        padding: 38px 40px 30px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        position: relative;
+        border: 1px solid rgba(255,255,255,0.18);
+        box-shadow: 0 28px 80px rgba(11,37,69,0.22);
+        backdrop-filter: blur(18px);
+    }
+
+    .badge-header::after {
+        content: "";
+        position: absolute;
+        left: 0; right: 0; bottom: -6px;
+        height: 6px;
+        background: repeating-linear-gradient(
+            90deg,
+            var(--teal) 0px, var(--teal) 18px,
+            transparent 18px, transparent 26px
+        );
+        opacity: 0.9;
+    }
+
+    @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .logo {
+        max-width: 160px;
+        height: auto;
+        display: block;
+        background: #fff;
+        padding: 6px 10px;
+        border-radius: 8px;
+    }
+
+    .brand-text h1 {
+        font-family: 'Sora', sans-serif;
+        color: #fff;
+        font-size: 1.45rem;
+        font-weight: 700;
+        margin: 0;
+        letter-spacing: -0.01em;
+        text-shadow: 0 14px 28px rgba(0,0,0,0.18);
+    }
+
+    .brand-text .eyebrow {
+        color: #fff;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        margin: 0 0 4px;
+    }
+
+    .profile-card {
+        background: rgba(255,255,255,0.98);
+        border-radius: 16px;
+        padding: 22px 24px 20px;
+        text-align: center;
+        min-width: 138px;
+        box-shadow: 0 22px 50px rgba(11,37,69,0.15);
+        border: 1px solid rgba(14,165,160,0.16);
+    }
+
+    /* Gradient border container: keeps inner area white */
+    .profile-photo {
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        padding: 3.5px; /* reduced thickness of the colored border */
+        display: block;
+        margin: 0 auto 10px;
+        box-shadow: 0 18px 45px rgba(11,37,69,0.16);
+        background: conic-gradient(from 180deg at 50% 50%, #0EA5A0, #5B21B6, #D4AF7F, #0EA5A0);
+    }
+
+    .profile-photo-img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        display: block;
+        object-fit: cover;
+        background: #fff; /* white interior */
+        box-shadow: 0 6px 18px rgba(11,37,69,0.08) inset;
+    }
+
+    .profile-info strong {
+        display: block;
+        font-family: 'Sora', sans-serif;
+        font-size: 1.6rem;
+        color: var(--navy);
+        letter-spacing: 0.01em;
+    }
+
+    .profile-info span {
+        display: block;
+        font-size: 0.80rem;
+        color: var(--muted);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        margin-top: 2px;
+    }
+
+    .content {
+        padding: 40px 40px 36px;
+    }
+
+    .section-title {
+        font-family: 'Sora', sans-serif;
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--navy);
+        margin: 0 0 12px;
+    }
+
+    .lead {
+        color: var(--text);
+        line-height: 1.7;
+        margin: 0 0 10px;
+        font-size: 0.98rem;
+    }
+
+    .lead a {
+        color: var(--navy);
+        font-weight: 700;
+        text-decoration: none;
+        border-bottom: 1px solid rgba(14,165,160,0.35);
+    }
+    .lead a:hover { color: var(--purple); border-bottom-color: var(--purple); }
+
+    .divider {
+        height: 1px;
+        background: var(--border);
+        margin: 28px 0;
+    }
+
+    /* ---- Contact cards ---- */
+    .contact-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        margin-top: 18px;
+    }
+
+    .contact-card.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .contact-card {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: rgba(255,255,255,0.92);
+        border: 1px solid rgba(14,165,160,0.12);
+        border-radius: 14px;
+        padding: 16px 18px;
+        box-shadow: 0 18px 36px rgba(11,37,69,0.06);
+    }
+
+    .contact-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 8px;
+        background: rgba(14,165,160,0.12);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .contact-icon svg { width: 18px; height: 18px; stroke: var(--teal-dark); }
+
+    .contact-text .label {
+        font-size: 0.7rem;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin: 0 0 2px;
+    }
+
+    .contact-text a {
+        font-size: 0.92rem;
+        font-weight: 600;
+        color: var(--navy);
+        text-decoration: none;
+    }
+    .contact-text a:hover { color: var(--teal-dark); }
+
+    .cta-row {
+        margin-top: 34px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+        padding: 10px 0 4px;
+    }
+
+    .cta-link {
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .phonebook-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, rgba(14,165,160,0.95), rgba(91,33,182,0.95));
+        color: #fff;
+        text-decoration: none;
+        padding: 12px 24px;
+        border-radius: 32px;
+        font-family: 'Sora', sans-serif;
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        transition: transform 0.2s ease, filter 0.2s ease;
+        box-shadow: 0 18px 36px rgba(14,165,160,0.18);
+    }
+
+    .phonebook-btn:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.08);
+    }
+
+    .call-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, var(--navy), var(--purple));
+        color: #fff;
+        text-decoration: none;
+        padding: 12px 24px;
+        border-radius: 32px;
+        font-family: 'Sora', sans-serif;
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        transition: transform 0.2s ease, filter 0.2s ease;
+        box-shadow: 0 18px 36px rgba(11,37,69,0.16);
+    }
+
+    .call-btn:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.08);
+    }
+
+    .cta-hint {
+        font-size: 0.85rem;
+        color: var(--muted);
+        margin: 0 0 12px;
+    }
+
+    .hours-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px 30px;
+        margin-top: 16px;
+    }
+
+    .hours-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.92rem;
+        padding: 6px 0;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .hours-row strong {
+        color: var(--navy);
+        font-weight: 700;
+    }
+
+    .hours-row span {
+        color: var(--text);
+        font-weight: 600;
+    }
+
+    .hours-row .closed {
+        color: #E53E3E;
+    }
+
+    .appt-box {
+        max-width: 340px;
+        margin: 18px auto 0;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .appt-date {
+        width: 100%;
+        padding: 12px 16px;
+        border: none;
+        border-radius: 10px;
+        background: var(--teal);
+        color: #fff;
+        font-family: 'Sora', sans-serif;
+        font-weight: 700;
+        font-size: 0.95rem;
+    }
+
+    .appt-slots {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .slot-btn {
+        padding: 14px 10px;
+        border-radius: 10px;
+        border: none;
+        background: var(--bg);
+        color: var(--text);
+        font-family: 'Sora', sans-serif;
+        font-weight: 700;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .slot-btn.selected {
+        background: var(--teal);
+        color: #fff;
+    }
+
+    .appt-submit {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        background: var(--teal);
+        color: #fff;
+        border: none;
+        padding: 13px;
+        border-radius: 10px;
+        font-family: 'Sora', sans-serif;
+        font-size: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        cursor: pointer;
+        transition: background 0.15s ease;
+    }
+
+    .appt-submit:hover {
+        background: var(--teal-dark);
+    }
+
+    .enquiry-box {
+        max-width: 420px;
+        margin: 18px auto 0;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .enquiry-input {
+        width: 100%;
+        padding: 13px 16px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: #fff;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.92rem;
+        color: var(--text);
+    }
+
+    .enquiry-input:focus {
+        outline: none;
+        border-color: var(--teal);
+    }
+
+    .enquiry-textarea {
+        resize: vertical;
+        font-family: 'Inter', sans-serif;
+    }
+
+    button.cta {
+        background: var(--navy);
+        color: #fff;
+        border: none;
+        padding: 13px 34px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-family: 'Sora', sans-serif;
+        font-size: 0.9rem;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        transition: background 0.15s ease, transform 0.15s ease;
+    }
+    button.cta:hover {
+        background: var(--teal-dark);
+        transform: translateY(-1px);
+    }
+
+    .qr-block {
+        margin-top: 34px;
+        text-align: center;
+    }
+
+    .qr-hint {
+        font-size: 0.85rem;
+        color: var(--muted);
+        margin: 0 0 14px;
+    }
+
+    .qr-frame {
+        display: inline-block;
+        padding: 6px;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+    }
+
+    .qr-frame img {
+        display: block;
+        width: 130px;
+        height: 130px;
+    }
+
+    .product-slider-wrap {
+        margin-top: 18px;
+    }
+
+    .product-slider {
+        display: flex;
+        gap: 16px;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        padding-bottom: 8px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+    
+    .product-slider::-webkit-scrollbar {
+        display: none;
+    }
+
+    .product-slider .product-card {
+        flex: 0 0 70%;
+        scroll-snap-align: center;
+        background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,255,255,0.86));
+        border: 1px solid rgba(14,165,160,0.14);
+        border-radius: 18px;
+        padding: 18px;
+        text-align: center;
+        box-shadow: 0 26px 56px rgba(11,37,69,0.1);
+        transition: transform 0.25s ease;
+    }
+
+    .product-slider .product-card:hover {
+        transform: translateY(-4px);
+    }
+
+    .scrolling-announcements {
+        position: relative;
+        overflow: hidden;
+        background: rgba(14,165,160,0.08);
+        border: 1px solid rgba(14,165,160,0.22);
+        border-radius: 12px;
+        padding: 12px 16px;
+        margin: 24px 0;
+    }
+
+    .ticker {
+        display: inline-flex;
+        gap: 48px;
+        white-space: nowrap;
+        animation: scrollText 18s linear infinite;
+    }
+
+    .ticker span {
+        font-weight: 700;
+        color: var(--navy);
+        font-size: 0.95rem;
+        letter-spacing: 0.01em;
+    }
+
+    @keyframes scrollText {
+        0% { transform: translateX(100%); }
+        100% { transform: translateX(-100%); }
+    }
+
+    .product-img {
+        width: 100%;
+        height: auto;
+        max-height: 220px;
+        object-fit: contain;
+        object-position: top;
+        margin-bottom: -4px;
+    }
+
+    .product-name {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--navy);
+        margin: 0;
+    }
+
+    .product-desc {
+        font-size: 0.85rem;
+        color: var(--muted);
+        line-height: 1.5;
+        margin: 8px 0 0;
+    }
+
+    .slider-dots {
+        display: flex;
+        justify-content: center;
+        gap: 6px;
+        margin-top: 10px;
+    }
+
+    .slider-dots span {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--border);
+        transition: background 0.2s ease;
+    }
+
+    .slider-dots span.active {
+        background: var(--teal);
+    }
+
+    @media (max-width: 600px) {
+        body { padding: 20px 12px; }
+        .badge-header {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 30px 24px 26px;
+        }
+        .brand { flex-direction: column; }
+        .content { padding: 30px 22px; }
+        .contact-grid { grid-template-columns: 1fr; }
+        .hours-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (min-width: 601px) {
+        .product-slider .product-card {
+            flex: 0 0 260px;
+        }
+    }
+</style>
+</head>
+<body>
+
+    <div id="loader">
+        <div class="loader-spinner"></div>
+    </div>
+
+    <div class="container">
+
+        <div class="badge-header">
+            <div class="brand">
+                <img src="logo.png" alt="Kaligraph Business System logo" class="logo">
+                <div class="brand-text">
+                    <h1>KALIGRAPH BUSINESS SYSTEM</h1>
+                    <p class="eyebrow">Entrust Authorised Distributor &mdash; Kerala</p>
+                    
+                </div>
+            </div>
+            <div class="profile-card">
+                <div class="profile-photo">
+                    <img src="biju.png" alt="Biju" class="profile-photo-img">
+                </div>
+                <div class="profile-info">
+                    <strong>Biju</strong>
+                    <span>Director / Sales</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+            <h2 class="section-title">About Kaligraph Business System</h2>
+            <p class="lead">Kaligraph Business System represents as partner in Kerala for the leading ID card printer brand Entrust. Entrust offers on-demand secure employee ID cards, membership cards, student IDs, patient IDs, and government-issued ID cards with enhanced design, management, efficiency, and easy operation.</p>
+            <p class="lead">For more information, please visit our <a href="https://kaligraph.in/">website</a>.</p>
+
+            <div class="cta-row">
+                <a href="data:text/vcard;charset=utf-8,BEGIN%3AVCARD%0AVERSION%3A3.0%0AFN%3ABiju%0AORG%3AKaligraph%20Business%20System%0ATITLE%3ADirector%20%2F%20Sales%0ATEL%3A%2B919400118866%0AEMAIL%3Ainfo%40kaligraph.in%0AEND%3AVCARD" download="Biju.vcf" class="phonebook-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                        <path d="M19 8v6M22 11h-6"/>
+                    </svg>
+                    ADD TO PHONEBOOK
+                </a>
+
+                <a href="tel:+919400118866" class="call-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+                    </svg>
+                    CALL NOW
+                </a>
+            </div>
+
+            <div class="divider"></div>
+
+            <h2 class="section-title">Get in Touch</h2>
+            <div class="contact-grid">
+                <div class="contact-card">
+                    <div class="contact-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+                        </svg>
+                    </div>
+                    <div class="contact-text">
+                        <p class="label">Call us</p>
+                        <a href="tel:+919400118866">+91 94001 18866</a>
+                    </div>
+                </div>
+                <div class="contact-card">
+                    <div class="contact-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                            <path d="m22 6-10 7L2 6"/>
+                        </svg>
+                    </div>
+                    <div class="contact-text">
+                        <p class="label">Email us</p>
+                        <a href="mailto:info@kaligraph.in">info@kaligraph.in</a>
+                    </div>
+                </div>
+
+                <div class="contact-card full-width">
+                    <div class="contact-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                            <circle cx="12" cy="10" r="3"/>
+                        </svg>
+                    </div>
+                    <div class="contact-text">
+                        <p class="label">Visit Us</p>
+                        <a href="https://www.google.com/maps/search/?api=1&query=K.D.F.A.+Building%2C+S.K.+Temple+Road%2C+Calicut-1%2C+Kerala%2C+India" target="_blank">K.D.F.A. Building, S.K. Temple Road, Calicut-1, Kerala, India</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <h2 class="section-title" style="text-align:center;">Business Hours</h2>
+            <div class="hours-grid">
+                <div class="hours-row"><strong>Monday</strong><span>09:30 – 05:30</span></div>
+                <div class="hours-row"><strong>Tuesday</strong><span>09:30 – 05:30</span></div>
+                <div class="hours-row"><strong>Wednesday</strong><span>09:30 – 05:30</span></div>
+                <div class="hours-row"><strong>Thursday</strong><span>09:30 – 05:30</span></div>
+                <div class="hours-row"><strong>Friday</strong><span>09:30 – 05:30</span></div>
+                <div class="hours-row"><strong>Saturday</strong><span>09:30 – 05:30</span></div>
+                <div class="hours-row"><strong>Sunday</strong><span class="closed">Closed</span></div>
+            </div>
+
+            <div class="divider"></div>
+
+            <h2 class="section-title" style="text-align:center;">Make an Appointment</h2>
+
+            <div class="appt-box">
+                <input type="date" id="apptDate" class="appt-date">
+
+                <div class="appt-slots">
+                    <button type="button" class="slot-btn" data-slot="09:00 - 13:00">09:00 - 13:00</button>
+                    <button type="button" class="slot-btn" data-slot="14:00 - 17:00">14:00 - 17:00</button>
+                </div>
+
+                <button type="button" class="appt-submit" onclick="sendAppointment()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                        <rect x="3" y="4" width="18" height="18" rx="2"/>
+                        <path d="M16 2v4M8 2v4M3 10h18"/>
+                    </svg>
+                    MAKE AN APPOINTMENT
+                </button>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="scrolling-announcements">
+                <div class="ticker">
+                    <span>Secure ID card printing solutions for schools, businesses, and governments</span>
+                    <span>Fast delivery across Kerala</span>
+                    <span>Entrust authorized distributor</span>
+                </div>
+            </div>
+
+            <h2 class="section-title" style="text-align:center;">OUR PRODUCTS</h2>
+
+            <div class="product-slider-wrap">
+                <div class="product-slider" id="productSlider">
+                    <div class="product-card">
+                        <img src="product1.png" alt="Product name" class="product-img">
+                        <p class="product-name">ENTRUST DATACARD SIGMA DSE  </p>
+                        <p class="product-desc">Dye-Sublimation / Resin Thermal Transfer Technology Improvement of Print Speed - 225 CPH Print Resolution 300 x 600, 300 x 1200 Connectivity USB, Ethenet & Wifi (Option).</p>
+                    </div>
+                    <div class="product-card">
+                        <img src="product2.png" alt="Product name" class="product-img">
+                        <p class="product-name">ENTRUST DATACRD SIGMA DS3</p>
+                        <p class="product-desc">The First 600 DPI PRINTER Dye-Sublimation / Resin Thermal Transfer Technology Improvement of Print Speed - 225 CPH Print Resolution 600 x 600, 300 x 1200 Connectivity USB, Ethenet & Wifi (Option).</p>
+                    </div>
+                    <div class="product-card">
+                        <img src="product3.png" alt="Product name" class="product-img">
+                        <p class="product-name">ENTRUST DATACRD ARTISTA CR805</p>
+                        <p class="product-desc">Retransfer pigment ink Improvement of Print Speed - 225 CPH Print Resolution 600 x 600, 300 x 1200 Connectivity USB, Ethenet & Wifi Lamination and Tactile Unit Optional(Option).</p>
+                    </div>
+                </div>
+                <div class="slider-dots" id="sliderDots"></div>
+            </div>
+
+            <div class="divider"></div>
+
+            <h2 class="section-title" style="text-align:center;">Enquiry Form</h2>
+
+            <div class="enquiry-box">
+                <input type="text" id="enqName" class="enquiry-input" placeholder="Name">
+                <input type="email" id="enqEmail" class="enquiry-input" placeholder="Email Address">
+                <input type="tel" id="enqPhone" class="enquiry-input" placeholder="Phone Number">
+                <textarea id="enqMessage" class="enquiry-input enquiry-textarea" placeholder="Message" rows="3"></textarea>
+
+                <button type="button" class="appt-submit" onclick="sendEnquiry()">SEND ENQUIRY</button>
+            </div>
+
+            <div class="cta-row">
+                <p class="cta-hint">Explore our full range of ID card printers and Solutions</p>
+                <button class="cta" onclick="window.location.href='https://kaligraph.in/'">Visit Our Website</button>
+            </div>
+
+            <div class="qr-block">
+                <p class="qr-hint">Or scan the QR code to visit our website</p>
+                <div class="qr-frame">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://kaligraph.in/" alt="QR Code to Kaligraph Business System website">
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let selectedSlot = null;
+
+        document.querySelectorAll('.slot-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                selectedSlot = btn.dataset.slot;
+            });
+        });
+
+        function sendAppointment() {
+            const date = document.getElementById('apptDate').value;
+            if (!date) {
+                alert('Please select a date.');
+                return;
+            }
+            if (!selectedSlot) {
+                alert('Please select a time slot.');
+                return;
+            }
+            const message = `Hi, I would like to book an appointment on ${date} between ${selectedSlot}.`;
+            const phoneNumber = '919400118866';
+            const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+            window.open(url, '_blank');
+        }
+
+        function sendEnquiry() {
+            const name = document.getElementById('enqName').value.trim();
+            const email = document.getElementById('enqEmail').value.trim();
+            const phone = document.getElementById('enqPhone').value.trim();
+            const msg = document.getElementById('enqMessage').value.trim();
+
+            if (!name || !phone) {
+                alert('Please enter at least your name and phone number.');
+                return;
+            }
+
+            const message = `Enquiry from website:\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\nMessage: ${msg}`;
+            const phoneNumber = '919400118866';
+            const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+            window.open(url, '_blank');
+        }
+
+        const slider = document.getElementById('productSlider');
+        const dotsContainer = document.getElementById('sliderDots');
+        const cards = slider.querySelectorAll('.product-card');
+
+        cards.forEach((_, i) => {
+            const dot = document.createElement('span');
+            if (i === 0) dot.classList.add('active');
+            dotsContainer.appendChild(dot);
+        });
+
+        const dots = dotsContainer.querySelectorAll('span');
+
+        slider.addEventListener('scroll', () => {
+            const index = Math.round(slider.scrollLeft / cards[0].offsetWidth);
+            dots.forEach((d, i) => d.classList.toggle('active', i === index));
+        });
+
+        window.addEventListener('load', function () {
+            document.getElementById('loader').classList.add('hidden');
+        });
+    </script>
+
+</body>
+</html>
